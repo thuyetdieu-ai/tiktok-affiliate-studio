@@ -135,9 +135,72 @@ class ProductsPage extends StatefulWidget {
 }
 class _ProductsPageState extends State<ProductsPage> {
   String category = 'Tất cả', query = '';
-  @override Widget build(BuildContext context) {
-    final items = widget.store.products.where((p) => (category == 'Tất cả' || p.category == category) && p.name.toLowerCase().contains(query.toLowerCase())).toList();
-    return Scaffold(body: Column(children: [Padding(padding: const EdgeInsets.all(12), child: TextField(decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Tìm sản phẩm...', border: OutlineInputBorder()), onChanged: (v) => setState(() => query = v))), SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: ['Tất cả', 'Gia dụng', 'Thời trang', 'Mỹ phẩm', 'Khác'].map((c) => Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: ChoiceChip(label: Text(c), selected: category == c, onSelected: (_) => setState(() => category = c)))).toList())), Expanded(child: ListView.builder(itemCount: items.length, itemBuilder: (context, i) { final p = items[i]; return Card(margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5), child: ListTile(leading: ReferenceThumb(path: p.productImage), title: Text(p.name), subtitle: Text('${p.category} · ${p.scenes.length} cảnh · ${p.price > 0 ? money(p.price) : 'Chưa nhập giá'}'), trailing: const Icon(Icons.chevron_right), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductEditor(store: widget.store, product: p)))); })))]), floatingActionButton: FloatingActionButton.extended(onPressed: () { final p = Product(id: uid(), name: 'Sản phẩm mới', category: 'Khác', hook: '', scenes: [for (var i = 0; i < 3; i++) Scene(id: uid(), visual: '', overlay: '')]); widget.store.products.add(p); widget.store.save(); Navigator.push(context, MaterialPageRoute(builder: (_) => ProductEditor(store: widget.store, product: p))); }, icon: const Icon(Icons.add), label: const Text('Thêm sản phẩm')));
+
+  @override
+  Widget build(BuildContext context) {
+    final items = widget.store.products.where((p) =>
+      (category == 'Tất cả' || p.category == category) &&
+      p.name.toLowerCase().contains(query.toLowerCase())).toList();
+    return Scaffold(
+      body: Column(children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            decoration: const InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Tìm sản phẩm...',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (v) => setState(() => query = v),
+          ),
+        ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(children: ['Tất cả', 'Gia dụng', 'Thời trang', 'Mỹ phẩm', 'Khác']
+            .map((c) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: ChoiceChip(
+                label: Text(c),
+                selected: category == c,
+                onSelected: (_) => setState(() => category = c),
+              ),
+            )).toList()),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, i) {
+              final p = items[i];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                child: ListTile(
+                  leading: ReferenceThumb(path: p.productImage),
+                  title: Text(p.name),
+                  subtitle: Text('${p.category} · ${p.scenes.length} cảnh · ${p.price > 0 ? money(p.price) : 'Chưa nhập giá'}'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => ProductEditor(store: widget.store, product: p))),
+                ),
+              );
+            },
+          ),
+        ),
+      ]),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          final p = Product(
+            id: uid(), name: 'Sản phẩm mới', category: 'Khác', hook: '',
+            scenes: [for (var i = 0; i < 3; i++) Scene(id: uid(), visual: '', overlay: '')],
+          );
+          widget.store.products.add(p);
+          widget.store.save();
+          Navigator.push(context,
+            MaterialPageRoute(builder: (_) => ProductEditor(store: widget.store, product: p)));
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Thêm sản phẩm'),
+      ),
+    );
   }
 }
 class ReferenceThumb extends StatelessWidget {
@@ -188,7 +251,27 @@ class PromptPage extends StatelessWidget {
 class VideosPage extends StatelessWidget {
   final StudioStore store;
   const VideosPage({super.key, required this.store});
-  @override Widget build(BuildContext context) => store.videos.isEmpty ? const Center(child: Text('Chưa có video. Vào sản phẩm để tạo bản ghi.')) : ListView.builder(padding: const EdgeInsets.all(12), itemCount: store.videos.length, itemBuilder: (context, i) { final v = store.videos[i]; return Card(child: ListTile(title: Text(v.title), subtitle: Text('${v.status} · ${v.date}\n${v.views} lượt xem · ${v.orders} đơn · ${money(v.commission)} hoa hồng'), isThreeLine: true, trailing: const Icon(Icons.edit_outlined), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => VideoEditor(store: store, record: v))))); });
+
+  @override
+  Widget build(BuildContext context) => store.videos.isEmpty
+      ? const Center(child: Text('Chưa có video. Vào sản phẩm để tạo bản ghi.'))
+      : ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: store.videos.length,
+          itemBuilder: (context, i) {
+            final v = store.videos[i];
+            return Card(
+              child: ListTile(
+                title: Text(v.title),
+                subtitle: Text('${v.status} · ${v.date}\n${v.views} lượt xem · ${v.orders} đơn · ${money(v.commission)} hoa hồng'),
+                isThreeLine: true,
+                trailing: const Icon(Icons.edit_outlined),
+                onTap: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => VideoEditor(store: store, record: v))),
+              ),
+            );
+          },
+        );
 }
 class VideoEditor extends StatefulWidget {
   final StudioStore store;
